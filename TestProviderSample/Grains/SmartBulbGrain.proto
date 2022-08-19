@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option csharp_namespace = "TestProviderSample.Grains";
+
+import "SmartBulbMessages.proto";
+import "google/protobuf/empty.proto";
+
+service SmartBulbGrain
+{
+	rpc TurnOn (google.protobuf.Empty) returns (google.protobuf.Empty);
+	rpc TurnOff (google.protobuf.Empty) returns (google.protobuf.Empty);
+	rpc GetState (google.protobuf.Empty) returns (GetSmartBulbStateResponse);
+}
+
+service SmartHouseGrain
+{
+	rpc SmartBulbStateChanged (SMartBulbStateChangedRequest) returns (google.protobuf.Empty);
+}

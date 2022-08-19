@@ -3,6 +3,7 @@ using Proto.Cluster;
 using Proto.Cluster.Testing;
 using Proto.Cluster.Partition;
 using Proto.Remote.GrpcNet;
+using TestProviderSample.Grains;
 
 namespace TestProviderSample;
 
@@ -22,9 +23,18 @@ public static class ActorSystemConfiguration
                     new TestProvider(new TestProviderOptions(), new InMemAgent()),
                     new PartitionIdentityLookup())
                 .WithClusterKind(
-                    "user",
-                    Props.FromProducer(() => new UserGrainActor()));
-
+                    CounterGrainActor.Kind,
+                    Props.FromProducer(() =>
+                        new CounterGrainActor((context, clusterIdentity) => new CounterGrain(context))))
+                .WithClusterKind(
+                    SmartBulbGrainActor.Kind,
+                    Props.FromProducer(() =>
+                        new SmartBulbGrainActor((context, clusterIdentity) => new SmartBulbGrain(context, clusterIdentity))))
+                .WithClusterKind(
+                    SmartHouseGrainActor.Kind,
+                    Props.FromProducer(() =>
+                        new SmartHouseGrainActor((context, clusterIdentity) => new SmartHouseGrain(context, clusterIdentity))));
+            
             return new ActorSystem(actorSystemConfig)
                 .WithRemote(remoteConfig)
                 .WithCluster(clusterConfig);

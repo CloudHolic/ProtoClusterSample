@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+option csharp_namespace = "TestProviderSample.Grains";
+
+import "CounterMessages.proto";
+import "google/protobuf/empty.proto";
+
+service CounterGrain
+{
+	rpc Increment (google.protobuf.Empty) returns (google.protobuf.Empty);
+	rpc GetCurrentValue (google.protobuf.Empty) returns (CounterValue);
+}

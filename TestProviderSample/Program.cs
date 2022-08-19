@@ -1,29 +1,24 @@
 using Proto;
 using Proto.Cluster;
 using TestProviderSample;
+using TestProviderSample.Grains;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddActorSystem(builder.Configuration);
 builder.Services.AddHostedService<ActorSystemClusterHostedService>();
+builder.Services.AddHostedService<SmartBulbSimulator>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
+var loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
+Log.SetLoggerFactory(loggerFactory);
 
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-
-app.UseRouting();
-
-app.UseAuthorization();
-
-app.MapRazorPages();
+app.MapGet("/", () => Task.FromResult("Hello, Proto.Cluster!"));
+app.MapGet("/smart-bulbs/{identity}", async (ActorSystem actorSystem, string identity) =>
+    await actorSystem
+        .Cluster()
+        .GetSmartBulbGrain(identity)
+        .GetState(CancellationToken.None));
 
 app.Run();

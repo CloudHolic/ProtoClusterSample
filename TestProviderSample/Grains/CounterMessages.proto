@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+option csharp_namespace = "TestProviderSample.Grains";
+
+message CounterValue
+{
+	int32 Value = 1;
+}
