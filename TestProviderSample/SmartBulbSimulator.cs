@@ -1,5 +1,6 @@
 ﻿using Proto;
 using Proto.Cluster;
+using Proto.Cluster.Gossip;
 using TestProviderSample.Grains;
 
 namespace TestProviderSample;
@@ -16,9 +17,9 @@ public class SmartBulbSimulator : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var random = new Random();
-
+        
         var lightBulbs = new[] { "living_room_1", "living_room_2", "bedroom", "kitchen" };
-
+        
         while (!stoppingToken.IsCancellationRequested)
         {
             var randomIdentity = lightBulbs[random.Next(lightBulbs.Length)];

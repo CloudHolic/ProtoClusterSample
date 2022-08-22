@@ -326,7 +326,176 @@
 
 
 
-### 5. Gossip
+### 5. Publish
 
-- 
+- ![PubSub](D:\Projects\ProtoClusterSample\Images\PubSub.png)
 
+  - 메시지를 broadcasting하여 subscribe를 신청한 모든 클러스터들에게 메시지를 보내는 시스템
+  - 이러한 메시지를 **Topic**이라고 부름.
+
+- ```csharp
+  var publisher = context.Cluster().Publisher();
+  
+  await publisher.Publish("topic", new ChatMessage { Message = "Hello" });
+  
+  await publisher.PublishBatch("topic", ChatTopic, new ChatMessage[]
+  {
+      new() { Message = "Hello" },
+      new() { Message = "world" }
+  });
+  ```
+
+  - ```IPublisher``` 를 통해 topic을 publishing함
+
+- ```csharp
+  var pid = await cluster.Subscribe("topic", context =>
+  {
+      if (context.Message is ChatMessage)
+      {
+          // process
+      }
+      
+      return Task.CompletedTask;
+  });
+  ```
+
+  - Topic을 구독해서 처리할 새 Actor를 생성
+
+- ```csharp
+  await cluster.Subscribe("topic", pid);
+  ```
+
+  - 기존 Actor에서 메시지를 구독 및 처리
+
+- ```csharp
+  public class User : UserActorBase
+  {
+      private const string ChatTopic = "chat";
+      
+      public User(IContext context) : base(context)
+      {
+          
+      }
+      
+      public override Task OnStarted() =>
+          context.Cluster().Subscribe("topic", Context.ClusterIdentity()!);
+      
+      public override Task OnStopping() =>
+          context.Cluster().Unsubscribe("topic", Context.ClusterIdentity()!);
+      
+      public override Task OnReceive()
+      {
+          if (Context.Message is ChatMessage msg)
+              Console.WriteLine($"Received '{msg.Message}'");
+          
+          return Task.CompletedTask;
+      }
+  }
+  ```
+
+  - ```CodeGen```을 통해 ```<Actor>Base```를 만들었을 경우
+  - 별도의 메소드를 제공하지 않고 ```OnReceive```에서 받아서 처리함
+
+- ```csharp
+  cluster.Unsubscribe("topic", pid);
+  /* .. */
+  cluster.Unsubscribe("topic", ClusterIdentity.Create("id", "kind"));
+  ```
+
+  - 구독 취소 시 가상 Actor인지 아닌지에 따라 다른 메소드를 사용
+
+- BatchingProducer
+
+  - Topic을 일괄 처리할 수 있게 해주는 producer
+
+  - ```csharp
+    await using var producer = Cluster.BatchingProducer("topic");
+    var t1 = producer.ProduceAsync(new ChatMessage { Message = "Hello" });
+    var t2 = prodcuer.ProduceAsync(new ChatMessage { Message = "world" });
+    
+    await Task.WhenAll(t1, t2);
+    ```
+
+  - ```csharp
+    var tokenSource = new CancellationTokenSource();
+    var t1 = producer.ProduceAsync(new ChatMessage { Message = "Hello" }, tokenSource.Token);
+    tokenSource.Cancel();
+    ```
+
+  - ```csharp
+    public delegate Task<PublishingErrorDecision> PublishingErrorHandler(
+    	int retries, Exception e, PubSubBatch batch);
+    ```
+
+    - 위의 delegate를 override하여 에러 발생 시의 행동을 정할 수 있음
+    - 필요한 리턴값(```PublishingErrorDecision```)
+      - ```FailBatchAndStop``` - **default**, 모든 pending task를 실패처리하고 producer를 중지
+      - ```FailBatchAndContinue``` - 현재 batch를 실패처리하고 다음 batch로 넘어감
+      - ```RetryBatchAfter(TimeSpan delay)``` - ```delay``` 이후에 현재 batch를 재시도함
+      - ```RetryBatchImmediately``` - 즉시 현재 batch를 재시도함
+
+
+
+### 6. Gossip
+
+- **Gossip(Epidemic) protocol** - 특정 그룹에게 메시지를 위한 방법 중 하나
+
+  - ![Gossip1](D:\Projects\ProtoClusterSample\Images\Gossip1.jpg)
+  - ![Gossip2](D:\Projects\ProtoClusterSample\Images\Gossip2.jpg)
+  - 주기적으로 랜덤 타겟을 골라 Gossip message 전송
+  - 그것을 받은 Infected node도 똑같이 행동
+
+- Proto.Actor에서는 Gossip protocol을 사용해 내부적으로 클러스터 멤버를 관리
+
+  - 한번에 전파할 Gossip message의 개수는 ```ClusterConfig.GossipFanout```의 수로 정해짐
+
+- 직접 전파하려면 ```Cluster.Gossip.SetKey(key, value)```를 사용
+
+  - key, value를 설정하면 이 정보를 클러스터의 다른 멤버들에게 전파함
+
+- ```csharp
+  var memberHeartbeats = await system.Cluster().Gossip.GetState<MemberHeartbeat>(GossipKeys.Heartbeat);
+  
+  var stats = (from x in memberHeartbeats
+  	let memberId = x.Key
+  	from y in x.Value.ActorStatistics.ActorCount
+  	select (memberId, y.Key, y.Value))
+      .ToList();
+  ```
+
+  - Gossip state Query
+
+- ```csharp
+  system.EventStream.Subscribe<GossipUpdate>(x => x.Key == GossipKeys.Heartbeat, update => {/*..*/});
+  ```
+
+  - Event Stream으로 Gossip state를 구독
+
+
+
+### 7. Blocklist
+
+- 클러스터의 각 멤버들은 문제가 생기면 block 될 수 있음
+
+- 멤버가 block되었는지는 Gossip의 heartbeat가 timeout이 되었는지 여부로 판단
+
+- 스스로 다운되었을 경우를 대비하는 방법
+
+  - ```csharp
+    builder.Services.AddHealthChecks().AddCheck<ActorSystemHealthCheck>("actor-system-health");
+    /* .. */
+    app.UseHealthChecks("/health");
+    ```
+
+    -  ASP.NET의 기능을 사용하여 Health Check에 사용할 미들웨어를 등록
+
+  - ```csharp
+    actorSystem.Shutdown.Register(() =>
+    {
+        actorSystem.Cluster().ShutdownAsync().Wait();
+        
+        Envrionment.Exit(1);
+    });
+    ```
+
+    - 직접적으로 Actor System을 모니터링
