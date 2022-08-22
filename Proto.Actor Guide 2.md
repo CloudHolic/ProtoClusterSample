@@ -328,7 +328,7 @@
 
 ### 5. Publish
 
-- ![PubSub](D:\Projects\ProtoClusterSample\Images\PubSub.png)
+- ![PubSub](https://github.com/CloudHolic/ProtoClusterSample/blob/master/Images/PubSub.png?raw=true)
 
   - 메시지를 broadcasting하여 subscribe를 신청한 모든 클러스터들에게 메시지를 보내는 시스템
   - 이러한 메시지를 **Topic**이라고 부름.
@@ -440,8 +440,8 @@
 
 - **Gossip(Epidemic) protocol** - 특정 그룹에게 메시지를 위한 방법 중 하나
 
-  - ![Gossip1](D:\Projects\ProtoClusterSample\Images\Gossip1.jpg)
-  - ![Gossip2](D:\Projects\ProtoClusterSample\Images\Gossip2.jpg)
+  - ![Gossip1](https://github.com/CloudHolic/ProtoClusterSample/blob/master/Images/Gossip1.jpg?raw=true)
+  - ![Gossip2](https://github.com/CloudHolic/ProtoClusterSample/blob/master/Images/Gossip2.jpg?raw=true)
   - 주기적으로 랜덤 타겟을 골라 Gossip message 전송
   - 그것을 받은 Infected node도 똑같이 행동
 
