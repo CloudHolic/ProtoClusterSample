@@ -26,11 +26,11 @@
   - ```Member1```, ```Member2```, ```Member3``` - Cluster에 속한 Member
   - 실제 Actor는 아직 어디에도 생성되지 않음
 - ![Lifecycle2](https://github.com/CloudHolic/ProtoClusterSample/blob/master/Images/Lifecycle2.png?raw=true)
-  - 이 요청을 처리할 Cluster Member를 고름
+  - 이 요청을 처리할 Cluster member를 고름
     - 이 예시에서는 ```Member2```
-  - 선택된 Cluster인 ```Member2```에서 그제서야 실제 Actor를 생성하고 PID를 부여함
+  - 선택된 Cluster member인 ```Member2```에서 그제서야 실제 Actor를 생성하고 PID를 부여함
 - ![Lifecycle3](https://github.com/CloudHolic/ProtoClusterSample/blob/master/Images/Lifecycle3.png?raw=true)
-  - 만일 ```Member2```가 다운되어 기능을 수행할 수 없을 경우, 동일한 역할을 하는 Actor가 다른 Member에서 생성됨
+  - 만일 ```Member2```가 다운되어 기능을 수행할 수 없을 경우, 동일한 역할을 하는 Actor가 다른 member에서 생성됨
     - PID는 달라지지만 Cluster identity는 동일
 - Grain은 Cluster에 의해 자동적으로 생성되지만 자동적으로 종료시킬 수 없음
   - 명시적인 메시지를 받으면 자동적으로 종료되게 설정
