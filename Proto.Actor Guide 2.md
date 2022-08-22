@@ -43,14 +43,6 @@
 
 - Proto.Actor에서 Cluster 및 Grain 개념을 지원하기 위해 제공하는 프레임워크
 
-- 필요한 Nuget 패키지
-  - ```Grpc.Tools```
-  - ```Proto.Actor```
-  - ```Proto.Cluster```
-  - ```Proto.Cluster.Codegen```
-  - ```Proto.Cluster.TestProvider```
-  - ```Proto.Remote```
-
 - ```csharp
   using Proto;
   using Proto.Cluster;
