@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option csharp_namespace = "TestProviderSample.Grains";
+option csharp_namespace = "K8sProviderSample.Grains";
 
 import "SmartBulbMessages.proto";
 import "google/protobuf/empty.proto";

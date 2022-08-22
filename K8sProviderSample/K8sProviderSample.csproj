@@ -4,26 +4,26 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
+		<UserSecretsId>eb62f7ed-c485-4ebe-9d4d-aa0271d206dc</UserSecretsId>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Grpc.Tools" Version="2.48.0">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.0" />
 		<PackageReference Include="Proto.Actor" Version="0.33.0" />
 		<PackageReference Include="Proto.Cluster" Version="0.33.0" />
 		<PackageReference Include="Proto.Cluster.CodeGen" Version="0.33.0" />
-		<PackageReference Include="Proto.Cluster.TestProvider" Version="0.33.0" />
+		<PackageReference Include="Proto.Cluster.Kubernetes" Version="0.33.0" />
 		<PackageReference Include="Proto.Remote" Version="0.33.0" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<Protobuf Include="Grains\CounterMessages.proto" />
-		<Protobuf Include="Grains\SmartBulbMessages.proto"/>
-
-		<ProtoGrain Include="Grains\CounterGrain.proto" AdditionalImportDirs="Grains"/>
-		<ProtoGrain Include="Grains\SmartBulbGrain.proto" AdditionalImportDirs="Grains"/>
+		<Protobuf Include="Grains\SmartBulbMessages.proto" />
+		<ProtoGrain Include="Grains\SmartBulbGrain.proto" AdditionalImportDirs="Grains" />
 	</ItemGroup>
 
 </Project>
