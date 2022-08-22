@@ -11,8 +11,8 @@
     - Cluster identity = kind + identity (ex. ```vehicle/123```, ```user/2```, etc.)
   - Actor와는 다르게 자동적으로 만들어지며, 사용자가 아닌 Cluster가 이를 관리함
     - 가상의 Actor가 있는 것으로 간주하고 요청을 보내면 Cluster에서 실제로 만들어줘서 처리하는 구조
-  - Grain이 실제론 어느 Cluster에 속해있는지 알 수 없음
-    - 동일한 Cluster identity를 가진 Grain을 서로 다른 Cluster Member에서 처리할 수도 있음
+  - Grain이 실제론 어느 Cluster member에 속해있는지 알 수 없음
+    - 동일한 Cluster identity를 가진 Grain을 서로 다른 Cluster member에서 처리할 수도 있음
   - Send를 사용하지 않음
     - 반드시 Request / Response만을 사용하여 요청
 
@@ -26,11 +26,11 @@
   - ```Member1```, ```Member2```, ```Member3``` - Cluster에 속한 Member
   - 실제 Actor는 아직 어디에도 생성되지 않음
 - ![Lifecycle2](https://github.com/CloudHolic/ProtoClusterSample/blob/master/Images/Lifecycle2.png?raw=true)
-  - 이 요청을 처리할 Cluster Member를 고름
+  - 이 요청을 처리할 Cluster member를 고름
     - 이 예시에서는 ```Member2```
-  - 선택된 Cluster인 ```Member2```에서 그제서야 실제 Actor를 생성하고 PID를 부여함
+  - 선택된 Cluster member인 ```Member2```에서 그제서야 실제 Actor를 생성하고 PID를 부여함
 - ![Lifecycle3](https://github.com/CloudHolic/ProtoClusterSample/blob/master/Images/Lifecycle3.png?raw=true)
-  - 만일 ```Member2```가 다운되어 기능을 수행할 수 없을 경우, 동일한 역할을 하는 Actor가 다른 Member에서 생성됨
+  - 만일 ```Member2```가 다운되어 기능을 수행할 수 없을 경우, 동일한 역할을 하는 Actor가 다른 member에서 생성됨
     - PID는 달라지지만 Cluster identity는 동일
 - Grain은 Cluster에 의해 자동적으로 생성되지만 자동적으로 종료시킬 수 없음
   - 명시적인 메시지를 받으면 자동적으로 종료되게 설정
@@ -42,14 +42,6 @@
 ### 3. Proto.Cluster
 
 - Proto.Actor에서 Cluster 및 Grain 개념을 지원하기 위해 제공하는 프레임워크
-
-- 필요한 Nuget 패키지
-  - ```Grpc.Tools```
-  - ```Proto.Actor```
-  - ```Proto.Cluster```
-  - ```Proto.Cluster.Codegen```
-  - ```Proto.Cluster.TestProvider```
-  - ```Proto.Remote```
 
 - ```csharp
   using Proto;
