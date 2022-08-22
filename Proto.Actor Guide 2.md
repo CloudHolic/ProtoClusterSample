@@ -11,8 +11,8 @@
     - Cluster identity = kind + identity (ex. ```vehicle/123```, ```user/2```, etc.)
   - Actor와는 다르게 자동적으로 만들어지며, 사용자가 아닌 Cluster가 이를 관리함
     - 가상의 Actor가 있는 것으로 간주하고 요청을 보내면 Cluster에서 실제로 만들어줘서 처리하는 구조
-  - Grain이 실제론 어느 Cluster에 속해있는지 알 수 없음
-    - 동일한 Cluster identity를 가진 Grain을 서로 다른 Cluster Member에서 처리할 수도 있음
+  - Grain이 실제론 어느 Cluster member에 속해있는지 알 수 없음
+    - 동일한 Cluster identity를 가진 Grain을 서로 다른 Cluster member에서 처리할 수도 있음
   - Send를 사용하지 않음
     - 반드시 Request / Response만을 사용하여 요청
 
