@@ -1,22 +1,24 @@
-#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
+# Stage 1 - Build
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS builder
+WORKDIR /app/src
 
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
-WORKDIR /app
-EXPOSE 80
-EXPOSE 443
+# Restore
+COPY *.csproj .
+RUN dotnet restore -r linux-x64
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
-WORKDIR /src
-COPY ["K8sProviderSample/K8sProviderSample.csproj", "K8sProviderSample/"]
-RUN dotnet restore "K8sProviderSample/K8sProviderSample.csproj"
+# Build
 COPY . .
-WORKDIR "/src/K8sProviderSample"
-RUN dotnet build "K8sProviderSample.csproj" -c Release -o /app/build
+RUN dotnet publish -c Release -o /app/publish -r linux-x64 --no-self-contained --no-restore
 
-FROM build AS publish
-RUN dotnet publish "K8sProviderSample.csproj" -c Release -o /app/publish /p:UseAppHost=false
-
-FROM base AS final
+# Stage 2 - Publish
+FROM mcr.microsoft.com/dotnet/aspnet:6.0
 WORKDIR /app
-COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "K8sProviderSample.dll"]
+
+RUN addgroup --system --gid 101 app \
+	&& adduser --system --ingroup app --uid 101 app
+
+COPY --from=builder --chown=app:app /app/publish .
+
+USER app
+
+ENTRYPOINT ["./K8sProviderSample"]

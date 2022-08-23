@@ -3,6 +3,8 @@ using Proto.Cluster;
 using Proto.Cluster.Partition;
 using Proto.Remote.GrpcNet;
 using K8sProviderSample.Grains;
+using Proto.Cluster.Kubernetes;
+using Proto.Remote;
 
 namespace K8sProviderSample;
 
@@ -14,12 +16,14 @@ public static class ActorSystemConfiguration
         {
             var actorSystemConfig = ActorSystemConfig.Setup();
 
-            var remoteConfig = GrpcNetRemoteConfig.BindToLocalhost();
+            var remoteConfig = GrpcNetRemoteConfig
+                .BindToAllInterfaces(configuration["ProtoActor:AdvertisedHost"])
+                .WithProtoMessages(SmartBulbMessagesReflection.Descriptor);
 
             var clusterConfig = ClusterConfig
                 .Setup(
                     "TestProviderSampleCluster",
-                    new TestProvider(new TestProviderOptions(), new InMemAgent()),
+                    new KubernetesProvider(),
                     new PartitionIdentityLookup())
                 .WithClusterKind(
                     SmartBulbGrainActor.Kind,
